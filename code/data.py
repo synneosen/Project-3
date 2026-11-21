@@ -6,6 +6,11 @@ n = 100
 sigma = 0.1
 test_size = 0.2
 seed = 2026
+
+CLASS_NAMES = [
+    "T-shirt/top", "Trouser", "Pullover", "Dress", "Coat",
+    "Sandal", "Shirt", "Sneaker", "Bag", "Ankle boot",
+]
  
 def load_fashion_mnist( val_size = 10000, seed=2026, flatten=True):
     X, y = fetch_openml("Fashion-MNIST", version=1, return_X_y=True, as_frame=False)

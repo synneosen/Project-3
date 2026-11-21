@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
+from data import CLASS_NAMES
 
 def plot_heatmap(values, x_labels, y_labels, x_name, y_name, title="", fmt=".3f", ax=None, vmin=None, vmax=None, cbar=True):
     ax = ax if ax is not None else plt.gca()
@@ -14,7 +15,7 @@ def plot_heatmap(values, x_labels, y_labels, x_name, y_name, title="", fmt=".3f"
     return ax
 
 
-def plot_confusion(cm, class_labels=None, title="", ax=None):
+def plot_confusion(cm, class_labels=CLASS_NAMES, title="", ax=None):
     ax = ax if ax is not None else plt.gca()
     sns.heatmap(
         cm,
