@@ -2,9 +2,6 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.datasets import fetch_openml
 
-n = 100
-sigma = 0.1
-test_size = 0.2
 seed = 2026
 
 CLASS_NAMES = [
