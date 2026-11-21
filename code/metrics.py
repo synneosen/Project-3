@@ -1,10 +1,4 @@
 import numpy as np
-
-def accuracy(y_true, y_pred):
-    return np.mean(y_pred == y_true)
-
-
-import numpy as np
 from sklearn.metrics import (
     confusion_matrix,
     precision_recall_fscore_support,
