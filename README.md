@@ -1,4 +1,4 @@
-# FYS-STK Project 2
+# FYS-STK Project 3
 
 ## Group
 
@@ -8,23 +8,11 @@
 
 ## Description
 
-This project implements a feed-forward neural network with backpropagation.
-The network is applied to regression on the one-dimensional Runge function and
-compared with OLS, Ridge and Lasso regression. It is also applied to MNIST
-classification and compared with logistic regression.
+TODO
 
 ## Installation
 
-The notebooks were prepared with Python 3.11.4. From the repository root,
-install the dependencies with:
-
-```bash
-py -3.11 -m pip install -r requirements.txt
-```
-
-Part E reads MNIST from `data/mnist.npz`. Download the file from
-<https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz> and
-put it in `data/`. The data set is not tracked by Git.
+TODO
 
 ## Running the notebooks
 
@@ -42,6 +30,8 @@ project-2.pdf  Project report
 ```
 
 ## Python modules
+
+TODO: UPDATE
 
 | Module | Description |
 |---|---|
