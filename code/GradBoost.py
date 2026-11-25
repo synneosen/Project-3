@@ -56,12 +56,13 @@ def run_cv_gb(Xtr, ytr, lr=0.1, max_depth=3,
             model.set_params(max_iter=iteration)
             model.fit(X_train, y_train)
 
-            probabilities = model.predict_proba(X_val)
-            losses.append(log_loss(y_val, probabilities,
-                                   labels=model.classes_))
+            probabilities = model.predict_proba(X_val) # gives probability for each of the ten classes
+            losses.append(log_loss(y_val, probabilities) # cross-entropy loss
+)
 
         mean_loss = np.mean(losses)
-        print(f"Iteration {iteration}: mean val loss = {mean_loss:.4f}")
+        if iteration % 10 == 0: #prints every tenth iteration
+            print(f"Iteration {iteration}: mean val loss = {mean_loss:.4f}")
 
         if mean_loss < best_loss:
             best_loss, best_iter, patience = mean_loss, iteration, 0
