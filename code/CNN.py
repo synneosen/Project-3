@@ -43,8 +43,8 @@ def run_cv(Xtr, ytr, lr=1e-3, dropout=0.5, kernel_size=3, conv_layers=2, dense_u
         y_train, y_val = ytr[train_idx], ytr[val_idx]
 
         mean, std = X_train.mean(), X_train.std()
-        X_train = ((X_train - mean) / std).astype("float32")[..., None]
-        X_val = ((X_val - mean) / std).astype("float32")[..., None]
+        X_train = ((X_train - mean) / std).astype("float32")[..., None] #add channel
+        X_val = ((X_val - mean) / std).astype("float32")[..., None] #add channel
 
         keras.utils.set_random_seed(2026)
         model = make_model(lr, dropout, kernel_size, conv_layers, dense_units)
