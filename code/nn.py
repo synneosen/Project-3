@@ -3,6 +3,9 @@ FFNN
 """
 
 import numpy as np
+from sklearn.model_selection import StratifiedKFold
+from optimizers import Adam
+from data import one_hot
 
 def sigmoid(z):
     return 1.0 / (1.0 + np.exp(-z))
@@ -272,3 +275,106 @@ def train_classification(model, optimizer, X, y, epochs, batch_size=None, seed=2
             history["val"].append(val_cost)
 
     return history
+
+
+
+def run_cv_ffnn(Xtr, ytr, lr=1e-3, l1=0.0, l2=0.0,
+                hidden_layers=2, nodes=50, activations="relu",
+                epochs=30, batch_size=64):
+
+    """
+    Perform 5-fold stratified cross-validation for a feedforward neural network (FFNN).
+
+    Each fold is standardized using its own training data. The model is trained
+    until the maximum number of epochs is reached or the average validation loss
+    across folds fails to improve for 3 consecutive epochs.
+
+    Parameters
+    ----------
+    Xtr : ndarray
+        Training images of shape (n_samples, 28, 28).
+    ytr : ndarray
+        Integer class labels (0-9).
+    lr : float
+        Learning rate for the Adam optimizer.
+    l1, l2 : float
+        L1 and L2 regularization strengths.
+    hidden_layers : int
+        Number of hidden layers.
+    nodes : int or list
+        Number of nodes per hidden layer.
+    activations : str or list
+        Activation function(s) for the hidden layers.
+    epochs : int
+        Maximum number of training epochs.
+    batch_size : int
+        Number of samples per training batch.
+
+    Returns
+    -------
+    best_loss : float
+        Lowest mean validation cross-entropy loss across the 5 folds.
+    best_epoch : int
+        Epoch at which the lowest mean validation loss was achieved.
+    """
+
+    # Allow different nodes and activations per hidden layer
+    node_sizes = [nodes] * hidden_layers if isinstance(nodes, int) else list(nodes)
+    acts = [activations] * hidden_layers if isinstance(activations, str) else list(activations)
+
+    if len(node_sizes) != hidden_layers or len(acts) != hidden_layers:
+        raise ValueError("nodes and activations must match hidden_layers")
+
+    cv = StratifiedKFold(5, shuffle=True, random_state=2026)
+    folds = []
+
+    for train_idx, val_idx in cv.split(Xtr, ytr):
+        X_train, X_val = Xtr[train_idx], Xtr[val_idx]
+        y_tr, y_v = ytr[train_idx], ytr[val_idx]
+
+        # Same fold-wise standardization as CNN
+        mean, std = X_train.mean(), X_train.std()
+        X_train = ((X_train - mean) / std).astype("float32").reshape(len(train_idx), -1)
+        X_val = ((X_val - mean) / std).astype("float32").reshape(len(val_idx), -1)
+
+        # One-hot encoding for cross-entropy
+        y_train = one_hot(y_tr)
+        y_val = one_hot(y_v)
+
+        model = NeuralNetwork(
+            [784] + node_sizes + [10],
+            acts + ["softmax"],
+            cost="cross_entropy",
+            l1=l1, l2=l2, seed=2026
+        )
+
+        optimizer = Adam(learning_rate=lr)
+        folds.append((model, optimizer, X_train, y_train, X_val, y_val))
+
+    best_loss, best_epoch, patience = np.inf, 0, 0
+
+    for epoch in range(1, epochs + 1):
+        losses = []
+
+        for model, optimizer, X_train, y_train, X_val, y_val in folds:
+            history = train_classification(
+                model, optimizer, X_train, y_train,
+                epochs=1, batch_size=batch_size,
+                seed=2026 + epoch, #Different shuffling of data inside each fold for every epoch. Folds still remain the same, so still fair comparison with other methods.
+                X_val=X_val, y_val=y_val
+            )
+            losses.append(history["val"][0])
+
+        mean_loss = np.mean(losses)
+        print(f"Epoch {epoch}: mean val loss = {mean_loss:.4f}")
+
+        if mean_loss < best_loss:
+            best_loss, best_epoch, patience = mean_loss, epoch, 0
+        else:
+            patience += 1
+
+        if patience >= 3:
+            break
+
+    print(f"Stopped at epoch {epoch}, best epoch: {best_epoch}")
+    return best_loss, best_epoch
